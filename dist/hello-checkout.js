@@ -1,6 +1,6 @@
 /**
  * Logistics Checkout JS
- * Version: 1.0.1
+ * Version: 1.0.2
  */
 (function(window, document) {
   'use strict';
@@ -38,15 +38,18 @@
       injectBanner() {
           if (document.querySelector(config.selectors.bannerContainer)) return;
 
+          console.log('injecting banner here....');
+
           const banner = document.createElement('div');
           banner.id = 'logistics-banner-container';
           banner.innerHTML = `
               <div style="
                   padding: 15px;
-                  background: #2a2a2a;
+                  background:rgb(184, 16, 16);
                   color: white;
                   text-align: center;
                   margin-bottom: 20px;
+                  font-size: 25px;
               ">
                   Hello from External JS!
               </div>
