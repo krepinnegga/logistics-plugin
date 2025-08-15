@@ -1,6 +1,6 @@
 /**
  * Logistics Checkout JS
- * Version: 1.0.0
+ * Version: 1.0.1
  */
 (function(window, document) {
   'use strict';
