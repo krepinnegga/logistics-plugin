@@ -19,10 +19,12 @@
       }
 
       init() {
+         console.log('Logging here....');
           if (!this.isCheckoutPage()) return;
 
           this.injectBanner();
           this.bindEvents();
+
 
           if (config.debug) {
               console.log('Logistics Checkout initialized');
