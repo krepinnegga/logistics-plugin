@@ -1,7 +1,7 @@
 {
     "name": "hiilabs/logistics-js",
     "description": "WooCommerce logistics checkout scripts",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "type": "plugin",
     "license": "MIT",
     "authors": [
