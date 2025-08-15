@@ -1,6 +1,6 @@
 /**
  * Logistics Checkout JS
- * Version: 1.0.6
+ * Version: 1.0.7
  */
 
 class LogisticsCheckoutHandler {

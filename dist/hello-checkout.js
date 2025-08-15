@@ -1,6 +1,6 @@
 /**
- * Logistics Checkout JS
- * Version: 1.0.6
+ * Logistics Checkout JS this is just a test to inject a banner to the dom of the checkout page
+ * Version: 1.0.7
  */
 
 (function(window, document) {
