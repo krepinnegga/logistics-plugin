@@ -1,30 +1,22 @@
 {
-  "name": "Hiilabs/logistics-plugin",
-  "description": "WooCommerce checkout logistics JavaScript injection",
-  "type": "wordpress-plugin",
-  "license": "MIT",
-  "authors": [
+    "name": "yourusername/logistics-js",
+    "description": "WooCommerce logistics checkout scripts",
+    "version": "1.0.0",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
       {
-          "name": "Hiilabs",
-          "email": "hiilabs@hiitown.co"
+        "name": "Hiilabs",
+        "email": "hiilabs@hiitown.co"
       }
-  ],
-  "require": {
-      "php": ">=7.4",
-      "composer/installers": "^2.0"
-  },
-  "autoload": {
-      "psr-4": {
-          "LogisticsPlugin\\": "src/"
-      }
-  },
-  "scripts": {
-      "deploy": [
-          "composer build",
-          "rsync -avz --delete ./ wp-content/plugins/logistics-plugin/"
-      ]
-  },
-  "extra": {
-      "installer-name": "logistics-plugin"
+    ],
+    "scripts": {
+      "build": "echo 'Building JS...' && uglifyjs src/hello-checkout.js -o dist/hello-checkout.min.js"
+    },
+    "keywords": [
+      "woocommerce",
+      "javascript",
+      "logistics",
+      "cdn"
+    ]
   }
-}
