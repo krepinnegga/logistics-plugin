@@ -1,0 +1,29 @@
+{
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.rulers": [80, 120],
+    "editor.wordWrap": "on",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false,
+    "workbench.startupEditor": "none",
+    "workbench.colorTheme": "Default Dark+",
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/*.code-search": true
+    },
+    "telemetry.telemetryLevel": "off",
+    "files.associations": {
+        "*.tsx": "typescriptreact",
+        "*.ts": "typescript",
+        "*.jsx": "javascriptreact",
+        "*.js": "javascript"
+    }
+}
