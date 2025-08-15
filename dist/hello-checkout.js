@@ -1,6 +1,6 @@
 /**
  * Logistics Checkout JS
- * Version: 1.0.3
+ * Version: 1.0.4
  */
 (function(window, document) {
   'use strict';
@@ -8,8 +8,10 @@
   const config = {
       debug: true,
       selectors: {
-          checkoutForm: 'form.woocommerce-checkout',
-          bannerContainer: '#logistics-banner-container'
+          // For block-based checkout:
+        checkoutForm: 'form.wc-block-components-form',  // Main form
+        checkoutContainer: '.wc-block-checkout',        // Alternative container
+        bannerContainer: '#logistics-banner-container'  // Your banner
       }
   };
 
