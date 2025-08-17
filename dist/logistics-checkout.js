@@ -1,6 +1,6 @@
 /**
  * Logistics Checkout JS
- * Version: 1.1.0
+ * Version: 1.1.1
  */
 
 class LogisticsCheckoutHandler {
@@ -89,13 +89,30 @@ class LogisticsCheckoutHandler {
     });
   }
 
-  handleOrderSubmission() {
-    const selectedShippingMethod = document.querySelector('input[name="shipping_method[0]"]:checked')?.value;
+  getSelectedShippingMethod() {
+    // Try multiple possible selectors since WooCommerce can change the structure
+    const selectors = [
+      'input[name="radio-control-0"]:checked',
+      'input[name="shipping_method[0]"]:checked',
+      '.wc-block-components-shipping-rates-control input[type="radio"]:checked'
+    ];
 
-    if (!selectedShippingMethod) {
-      console.warn('No shipping method selected');
-      return;
+    for (const selector of selectors) {
+      const method = document.querySelector(selector)?.value;
+      if (method) return method;
     }
+
+    console.warn('Could not find selected shipping method');
+    return null;
+  }
+
+  handleOrderSubmission() {
+    const selectedShippingMethod = this.getSelectedShippingMethod();
+
+  if (!selectedShippingMethod) {
+    console.warn('No shipping method selected');
+    return;
+  }
 
     const orderData = {
       item: this.getOrderItemData(),
