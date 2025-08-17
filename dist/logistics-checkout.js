@@ -1,109 +1,87 @@
 /**
  * Logistics Checkout JS
- * Version: 1.0.8
+ * Version: 1.1.0
  */
 
 class LogisticsCheckoutHandler {
   constructor() {
-    this.services = [
-      { id: "delivery-glovo", name: "Glovo Delivery", fee: 50 },
-      { id: "delivery-chowdeck", name: "Chowdeck Delivery", fee: 40 }
-    ];
-
-    this.selectedService = null;
-    this.pickupData = {
-      address: "123 Main St",
-      city: "Lagos",
-      state: "Lagos",
-      countryCode: "NG",
-      countryName: "Nigeria",
-      postalCode: "100001",
-      contactName: "Warehouse Manager",
-      contactPhone: "+2348012345678"
-    };
-
+    this.pickupData = this.getStoreAddress();
     this.init();
   }
 
   init() {
-    this.injectShippingOptions();
     this.setupEventListeners();
     console.log('LogisticsCheckoutHandler initialized');
   }
 
-  injectShippingOptions() {
-    const shippingContainer = document.querySelector('.wc-block-components-shipping-rates-control__package');
+  getStoreAddress() {
+    const storeData = wcSettings?.storeData || {};
 
-    if (!shippingContainer) {
-      console.warn('Shipping options container not found');
-      setTimeout(() => this.injectShippingOptions(), 500);
-      return;
-    }
+    return {
+      address: storeData?.address?.address_1 || '123 Main St',
+      city: storeData?.address?.city || 'Lagos',
+      state: storeData?.address?.state || 'Lagos',
+      countryCode: storeData?.address?.country || 'NG',
+      countryName: this.getCountryName(storeData?.address?.country) || 'Nigeria',
+      postalCode: storeData?.address?.postcode || '100001',
+      contactName: storeData?.storeName || 'Store Manager',
+      contactPhone: storeData?.address?.phone || '+2348012345678'
+    };
+  }
 
-    // Clear existing injected options
-    document.querySelectorAll('.logistics-shipping-option').forEach(el => el.remove());
+  getCountryName(countryCode) {
+    const countries = {
+      'NG': 'Nigeria',
+      'US': 'United States',
+      'UK': 'United Kingdom',
+      'GH': 'Ghana',
+      'KE': 'Kenya'
+    };
+    return countries[countryCode] || countryCode;
+  }
 
-    this.services.forEach((service, index) => {
-      const optionId = `radio-control-${index}-${service.id}`;
-      const isFirst = index === 0;
-      const isLast = index === this.services.length - 1;
+  getOrderItemData() {
+    const cartItems = wcSettings?.cartData?.items || [];
+    if (cartItems.length === 0) return null;
 
-      const optionHtml = `
-        <label class="wc-block-components-radio-control__option logistics-shipping-option
-          ${isFirst ? 'wc-block-components-radio-control--highlight-checked--first-selected' : ''}
-          ${isLast ? 'wc-block-components-radio-control--highlight-checked--last-selected' : ''}
-          wc-block-components-radio-control--highlight-checked"
-          for="${optionId}">
-          <input id="${optionId}"
-                 class="wc-block-components-radio-control__input"
-                 type="radio"
-                 name="shipping_method[0]"
-                 aria-describedby="${optionId}__secondary-label"
-                 aria-disabled="false"
-                 value="${service.id}"
-                 data-raw-price="${service.fee}">
-          <div class="wc-block-components-radio-control__option-layout">
-            <div class="wc-block-components-radio-control__label-group">
-              <span id="${optionId}__label" class="wc-block-components-radio-control__label">${service.name}</span>
-              <span id="${optionId}__secondary-label" class="wc-block-components-radio-control__secondary-label">
-                <span class="wc-block-checkout__shipping-option--price">₵${service.fee}</span>
-              </span>
-            </div>
-          </div>
-        </label>
-      `;
+    // For simplicity, we'll use the first item
+    const firstItem = cartItems[0];
 
-      shippingContainer.insertAdjacentHTML('beforeend', optionHtml);
-    });
+    return {
+      description: firstItem.name || '',
+      weight: firstItem.weight || 0,
+      value: firstItem.price || 0,
+      isDocument: false // Default to false unless you have a way to determine this
+    };
+  }
 
-    // Uncheck free shipping if our options are present
-    const freeShippingInput = document.querySelector('input[value="free_shipping:1"]');
-    if (freeShippingInput && document.querySelector('.logistics-shipping-option')) {
-      freeShippingInput.checked = false;
-    }
+  getDeliveryData() {
+    const shippingAddress = wcSettings?.checkoutData?.shipping || {};
+
+    return {
+      address: shippingAddress?.address_1 || '',
+      city: shippingAddress?.city || '',
+      state: shippingAddress?.state || '',
+      countryCode: shippingAddress?.country || '',
+      countryName: this.getCountryName(shippingAddress?.country) || '',
+      postalCode: shippingAddress?.postcode || '',
+      customerName: `${wcSettings?.checkoutData?.billing?.first_name || ''} ${wcSettings?.checkoutData?.billing?.last_name || ''}`.trim(),
+      customerPhone: wcSettings?.checkoutData?.billing?.phone || ''
+    };
+  }
+
+  getMetaData() {
+    const cartItems = wcSettings?.cartData?.items || [];
+    const firstItemImage = cartItems[0]?.images?.[0]?.src || '';
+
+    return {
+      images: firstItemImage ? [firstItemImage] : [],
+      additionalServices: [], // Empty array by default
+      insurance: {} // Empty object by default
+    };
   }
 
   setupEventListeners() {
-    // Handle shipping method selection
-    document.addEventListener('change', (e) => {
-      if (e.target.name === 'shipping_method[0]') {
-        if (e.target.value === 'free_shipping:1') {
-          this.selectedService = null;
-        } else {
-          this.selectedService = this.services.find(s => s.id === e.target.value);
-        }
-        this.updateShippingFee();
-      }
-    });
-
-    // Re-inject options when checkout updates
-    if (typeof jQuery !== 'undefined') {
-      jQuery(document.body).on('updated_checkout', () => {
-        this.injectShippingOptions();
-      });
-    }
-
-    // Capture order data on submission
     document.addEventListener('click', (e) => {
       if (e.target.closest('.wc-block-components-checkout-place-order-button')) {
         this.handleOrderSubmission();
@@ -111,46 +89,52 @@ class LogisticsCheckoutHandler {
     });
   }
 
-  updateShippingFee() {
-    // Update the displayed fee in the order summary
-    const shippingTotal = document.querySelector('.wp-block-woocommerce-checkout-order-summary-shipping-block .wc-block-components-totals-item__value');
-    if (shippingTotal) {
-      shippingTotal.innerHTML = this.selectedService
-        ? `<span class="wc-block-formatted-money-amount wc-block-components-formatted-money-amount">₵${this.selectedService.fee}</span>`
-        : `<strong>Free</strong>`;
+  handleOrderSubmission() {
+    const selectedShippingMethod = document.querySelector('input[name="shipping_method[0]"]:checked')?.value;
+
+    if (!selectedShippingMethod) {
+      console.warn('No shipping method selected');
+      return;
     }
 
-    // Update the total
-    const subtotal = parseFloat(
-      document.querySelector('.wp-block-woocommerce-checkout-order-summary-subtotal-block .wc-block-components-formatted-money-amount')
-        ?.textContent?.replace(/[^\d.]/g, '') || 0
-    );
-    const newTotal = subtotal + (this.selectedService?.fee || 0);
+    const orderData = {
+      item: this.getOrderItemData(),
+      pickup: this.pickupData,
+      delivery: this.getDeliveryData(),
+      meta: this.getMetaData()
+    };
 
-    const totalElement = document.querySelector('.wc-block-components-totals-footer-item .wc-block-components-formatted-money-amount');
-    if (totalElement) {
-      totalElement.textContent = `₵${newTotal.toFixed(2)}`;
-    }
+    console.log('Formatted order data:', orderData);
 
-    // Force WooCommerce to recalculate totals
-    if (typeof jQuery !== 'undefined') {
-      jQuery(document.body).trigger('update_checkout');
-    }
+    // Here you would send this data to your backend
+    // Example:
+    // fetch('/your-api-endpoint', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(orderData)
+    // });
   }
-
-  // ... (keep all other methods the same as previous implementation)
 }
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  new LogisticsCheckoutHandler();
+  if (typeof wcSettings !== 'undefined') {
+    new LogisticsCheckoutHandler();
+  } else {
+    const observer = new MutationObserver(() => {
+      if (typeof wcSettings !== 'undefined') {
+        observer.disconnect();
+        new LogisticsCheckoutHandler();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
 });
 
-// Reinitialize when checkout updates via AJAX
 if (typeof jQuery !== 'undefined') {
   jQuery(document.body).on('updated_checkout', () => {
-    if (!document.querySelector('.logistics-shipping-option')) {
-      new LogisticsCheckoutHandler();
-    }
+    new LogisticsCheckoutHandler();
   });
 }
